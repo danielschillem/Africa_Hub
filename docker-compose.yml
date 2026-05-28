@@ -1,0 +1,64 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: afrihub
+      MYSQL_USER: afrihub_user
+      MYSQL_PASSWORD: afrihub_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    volumes:
+      - db_data:/var/lib/mysql
+    ports: ["3306:3306"]
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost"]
+      interval: 10s; timeout: 5s; retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  backend:
+    build: ./backend
+    environment:
+      APP_ENV: local
+      APP_KEY: base64:CHANGEME==
+      DB_HOST: db; DB_DATABASE: afrihub; DB_USERNAME: afrihub_user; DB_PASSWORD: afrihub_pass
+      REDIS_HOST: redis
+      QUEUE_CONNECTION: redis
+    ports: ["8000:8000"]
+    depends_on: [db, redis]
+    volumes:
+      - ./backend:/var/www/afrihub
+      - storage_data:/var/www/afrihub/storage/app/public
+    command: >
+      sh -c "php artisan migrate --force &&
+             php artisan db:seed --class=PlanSeeder --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+
+  queue:
+    build: ./backend
+    environment:
+      DB_HOST: db; DB_DATABASE: afrihub; DB_USERNAME: afrihub_user; DB_PASSWORD: afrihub_pass
+      REDIS_HOST: redis; QUEUE_CONNECTION: redis
+    depends_on: [backend]
+    command: php artisan queue:work --queue=social,broadcasts --tries=3
+
+  scheduler:
+    build: ./backend
+    environment:
+      DB_HOST: db; DB_DATABASE: afrihub; DB_USERNAME: afrihub_user; DB_PASSWORD: afrihub_pass
+      REDIS_HOST: redis
+    depends_on: [backend]
+    command: sh -c "while true; do php artisan schedule:run; sleep 60; done"
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+    ports: ["3000:3000"]
+    depends_on: [backend]
+
+volumes:
+  db_data:
+  storage_data:
