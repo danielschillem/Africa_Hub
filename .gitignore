@@ -37,6 +37,23 @@ docker-compose.override.yml
 # PHP
 .phpunit.result.cache
 .php-cs-fixer.cache
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitkeep
+backend/storage/app/*
+!backend/storage/app/.gitkeep
+!backend/storage/app/public/
+backend/storage/app/public/*
+!backend/storage/app/public/.gitkeep
+backend/storage/framework/cache/data/*
+!backend/storage/framework/cache/data/.gitkeep
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitkeep
+backend/storage/framework/testing/*
+!backend/storage/framework/testing/.gitkeep
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitkeep
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
 
 # Misc
 *.tmp

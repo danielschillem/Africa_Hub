@@ -10,23 +10,28 @@ class PlanSeeder extends Seeder
     public function run(): void
     {
         // Workspace demo pour tester
-        $workspace = Workspace::create([
-            'name'          => 'AFRIHUB Demo',
-            'slug'          => 'afrihub-demo',
-            'industry'      => 'tech',
-            'plan'          => 'agence',
-            'status'        => 'active',
-            'trial_ends_at' => now()->addDays(30),
-            'plan_ends_at'  => now()->addYear(),
-        ]);
+        $workspace = Workspace::updateOrCreate(
+            ['slug' => 'afrihub-demo'],
+            [
+                'name'          => 'AFRIHUB Demo',
+                'industry'      => 'tech',
+                'plan'          => 'agence',
+                'status'        => 'active',
+                'trial_ends_at' => now()->addDays(30),
+                'plan_ends_at'  => now()->addYear(),
+            ]
+        );
 
-        User::create([
-            'workspace_id' => $workspace->id,
-            'name'         => 'Admin AFRIHUB',
-            'email'        => 'admin@afrihub.africa',
-            'password'     => Hash::make('password123'),
-            'role'         => 'owner',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@afrihub.africa'],
+            [
+                'workspace_id' => $workspace->id,
+                'name'         => 'Admin AFRIHUB',
+                'password'     => Hash::make('password123'),
+                'role'         => 'owner',
+                'is_active'    => true,
+            ]
+        );
 
         $this->command->info('Workspace demo cree: admin@afrihub.africa / password123');
     }

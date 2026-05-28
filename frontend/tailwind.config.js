@@ -1,6 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./app/**/*.{js,ts,jsx,tsx}','./components/**/*.{js,ts,jsx,tsx}'],
+  safelist: [
+    {
+      pattern: /^(bg|text|hover:bg)-(blue|purple|green|brand|indigo|emerald)-(50|100|200|600)$/,
+      variants: ['hover', 'group-hover'],
+    },
+  ],
   theme: {
     extend: {
       colors: {
@@ -15,7 +21,7 @@ module.exports = {
           600: '#a17f1e', 700: '#795e16', 800: '#503e0f', 900: '#281f07',
         },
       },
-      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
     },
   },
   plugins: [],
